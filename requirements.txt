@@ -1,0 +1,7 @@
+pathway
+groq
+sentence-transformers
+pyyaml
+pandas
+numpy
+tqdm
