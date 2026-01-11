@@ -18,29 +18,43 @@ class DebateOrchestrator:
     
     def extract_claims(self, backstory: str) -> List[str]:
         """
-        Extract atomic claims from backstory using Groq's llama-3.3-70b.
+        Extract high-quality claims from backstory using Groq's llama-3.3-70b.
+        
+        IMPROVED: Focus on verifiable, specific claims that can be checked against novel.
         """
-        prompt = f"""Extract atomic claims from this character backstory. Each claim should be:
-- A single verifiable statement
-- Specific enough to check against evidence
-- Free of compound statements
+        max_claims = min(5, self.config['agents']['max_claims_per_backstory'])
+        
+        prompt = f"""Extract the MOST IMPORTANT and VERIFIABLE claims from this character backstory.
+
+Focus on claims that are:
+✓ Specific events (battles, meetings, deaths, discoveries)
+✓ Concrete relationships (who helped/betrayed/knew whom)  
+✓ Factual details (locations, objects, dates, actions taken)
+✓ Checkable against the novel's plot
+
+AVOID claims that are:
+✗ Generic statements ("The character was skilled")
+✗ Emotional/internal states ("felt betrayed")
+✗ Redundant sub-claims
+✗ Too vague to verify
 
 BACKSTORY:
 {backstory}
 
 OUTPUT FORMAT:
-Return ONLY a numbered list of claims, one per line:
-1. [First claim]
-2. [Second claim]
+Return ONLY a numbered list of {max_claims} key claims:
+1. [First specific, verifiable claim]
+2. [Second specific, verifiable claim]
 ...
 
-Limit to {self.config['agents']['max_claims_per_backstory']} most important claims."""
+Extract exactly {max_claims} claims, prioritizing the most fact-checkable ones."""
 
         response = self.llm.generate(prompt, task_type='claim_extraction')
         
         if not response:
-            # Fallback: split by sentences
-            return [s.strip() + '.' for s in backstory.split('.') if len(s.strip()) > 20][:10]
+            # Fallback: split by sentences, take first N
+            sentences = [s.strip() + '.' for s in backstory.split('.') if len(s.strip()) > 20]
+            return sentences[:max_claims]
         
         # Parse numbered list
         claims = []
@@ -49,10 +63,14 @@ Limit to {self.config['agents']['max_claims_per_backstory']} most important clai
             if line and (line[0].isdigit() or line.startswith('-') or line.startswith('•')):
                 # Remove numbering/bullets
                 claim = line.lstrip('0123456789.-•)').strip()
-                if claim:
+                if claim and len(claim) > 15:  # Filter out empty/trivial claims
                     claims.append(claim)
         
-        return claims[:self.config['agents']['max_claims_per_backstory']]
+        # Ensure we have at least 1 claim
+        if not claims:
+            claims = [backstory[:200]]  # Use first 200 chars as fallback
+        
+        return claims[:max_claims]
     
     def deliberate_on_backstory(self, backstory: str, book_id: str) -> List[Dict]:
         """
@@ -62,11 +80,15 @@ Limit to {self.config['agents']['max_claims_per_backstory']} most important clai
         """
         print(f"\n🔍 Extracting claims from backstory...")
         claims = self.extract_claims(backstory)
-        print(f"   → {len(claims)} claims identified")
+        print(f"   → {len(claims)} high-quality claims identified")
         
         # Retrieve evidence for all claims at once
         print(f"\n📚 Retrieving evidence for claims...")
         evidence_map = self.retriever.retrieve_for_claims(claims, book_id)
+        
+        # DEBUG: Show retrieval stats
+        total_evidence = sum(len(ev) for ev in evidence_map.values())
+        print(f"   → {total_evidence} total evidence chunks retrieved")
         
         deliberations = []
         
@@ -97,5 +119,12 @@ Limit to {self.config['agents']['max_claims_per_backstory']} most important clai
             
             print(f"   ✓ Verdict: {final_judgment['verdict']} "
                   f"(confidence: {final_judgment['confidence']:.2f})")
+        
+        # DEBUG: Show overall statistics
+        verdicts = [d['final']['verdict'] for d in deliberations]
+        print(f"\n📊 Deliberation Summary:")
+        print(f"   CONSISTENT: {verdicts.count('CONSISTENT')}")
+        print(f"   CONTRADICTORY: {verdicts.count('CONTRADICTORY')}")
+        print(f"   INSUFFICIENT: {verdicts.count('INSUFFICIENT')}")
         
         return deliberations

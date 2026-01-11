@@ -9,16 +9,26 @@ class BaseAgent:
         self.config = config
         self.task_type = task_type  # For model selection
     
-    def format_evidence(self, evidence_chunks: List[Dict], max_chunks: int = 5) -> str:
-        """Format evidence chunks for prompt."""
+    def format_evidence(self, evidence_chunks: List[Dict], max_chunks: int = 3) -> str:
+        """
+        Format evidence chunks for prompt.
+        
+        CHANGED: Reduced from 5 to 3 chunks to stay under token limits.
+        Each chunk ~1500 chars, 3 chunks = ~4500 chars = ~1125 tokens
+        Plus prompt overhead ~1000 tokens = ~2125 total (well under 6000)
+        """
         if not evidence_chunks:
             return "No relevant evidence found."
         
         formatted = []
         for i, chunk in enumerate(evidence_chunks[:max_chunks]):
+            # Truncate very long chunks to first 800 characters
+            text = chunk['text']
+            if len(text) > 800:
+                text = text[:800] + "..."
+            
             formatted.append(
-                f"[Evidence {i+1}] (Position: {chunk['position']}, "
-                f"Similarity: {chunk['similarity']:.2f})\n{chunk['text']}\n"
+                f"[Evidence {i+1}] (Similarity: {chunk['similarity']:.2f})\n{text}\n"
             )
         
         return "\n".join(formatted)

@@ -85,6 +85,16 @@ def main():
         indexer.save_index(index_cache)
         print("✓ Pathway index built and cached")
 
+    # DEBUG: Print available book IDs
+    print("\n🔍 DEBUG: Available book IDs in index:")
+    for book_id in indexer.index.keys():
+        print(f"   - '{book_id}'")
+    
+    # DEBUG: Print unique book names from CSV
+    print("\n🔍 DEBUG: Unique book names in validation CSV:")
+    for book_name in val_df['book_name'].unique():
+        print(f"   - '{book_name}'")
+
     # -----------------------------
     # Initialize components
     # -----------------------------
@@ -103,18 +113,25 @@ def main():
 
     results = []
 
-    for _, row in tqdm(val_df.iterrows(), total=len(val_df), desc="Inference"):
+    for idx, row in tqdm(val_df.iterrows(), total=len(val_df), desc="Inference"):
         sample_id = row["id"]
         book_name = row["book_name"]
         character = row["char"]
         backstory = row["content"]
         true_label = normalize_label(row["label"])
 
+        # DEBUG: First sample only
+        if len(results) == 0:
+            print(f"\n🔍 DEBUG: First sample")
+            print(f"   CSV book_name: '{book_name}'")
+            print(f"   Backstory preview: {backstory[:100]}...")
+
         try:
+            # Note: book_name from CSV should match book_id in index
+            # (book_id is derived from filename without .txt extension)
             deliberations = debate_orchestrator.deliberate_on_backstory(
                 backstory=backstory,
-                book_name=book_name,
-                character=character
+                book_id=book_name  # book_name from CSV = book_id in index
             )
 
             pred_label, rationale = scorer.compute_score(deliberations)
@@ -130,6 +147,9 @@ def main():
 
         except Exception as e:
             print(f"\n❌ Error on sample {sample_id}: {e}")
+            import traceback
+            traceback.print_exc()
+            
             results.append({
                 "id": sample_id,
                 "book_name": book_name,
