@@ -1,17 +1,17 @@
 id,book_name,character,prediction,true_label,rationale
 39,In Search of the Castaways,Tom Ayrton/Ben Joyce,0,0,CONTRADICTORY (conservative): Only 0% of claims have sufficient evidence. Insufficient data to validate backstory.
-122,The Count of Monte Cristo,Faria,0,0,CONTRADICTORY: Found 1 hard contradiction(s) that cannot be reconciled with the novel.
+122,The Count of Monte Cristo,Faria,0,0,CONTRADICTORY (conservative): Only 0% of claims have sufficient evidence. Insufficient data to validate backstory.
 69,In Search of the Castaways,Kai-Koumou,0,1,CONTRADICTORY (conservative): Only 0% of claims have sufficient evidence. Insufficient data to validate backstory.
 84,In Search of the Castaways,Kai-Koumou,0,1,CONTRADICTORY (conservative): Only 0% of claims have sufficient evidence. Insufficient data to validate backstory.
 48,In Search of the Castaways,Thalcave,0,1,CONTRADICTORY (conservative): Only 0% of claims have sufficient evidence. Insufficient data to validate backstory.
-109,The Count of Monte Cristo,Noirtier,0,0,CONTRADICTORY: Found 2 hard contradiction(s) that cannot be reconciled with the novel.
+109,The Count of Monte Cristo,Noirtier,0,0,CONTRADICTORY (conservative): Only 0% of claims have sufficient evidence. Insufficient data to validate backstory.
 1,In Search of the Castaways,Jacques Paganel,0,1,CONTRADICTORY (conservative): Only 0% of claims have sufficient evidence. Insufficient data to validate backstory.
-89,The Count of Monte Cristo,Noirtier,1,0,"CONSISTENT: 2 claims supported, 0 minor conflicts (resolvable)."
-98,The Count of Monte Cristo,Noirtier,1,0,"CONSISTENT: 3 claims supported, 0 minor conflicts (resolvable)."
+89,The Count of Monte Cristo,Noirtier,0,0,CONTRADICTORY (conservative): Only 0% of claims have sufficient evidence. Insufficient data to validate backstory.
+98,The Count of Monte Cristo,Noirtier,0,0,CONTRADICTORY (conservative): Only 0% of claims have sufficient evidence. Insufficient data to validate backstory.
 6,In Search of the Castaways,Jacques Paganel,0,1,CONTRADICTORY (conservative): Only 0% of claims have sufficient evidence. Insufficient data to validate backstory.
 12,In Search of the Castaways,Jacques Paganel,0,0,CONTRADICTORY (conservative): Only 0% of claims have sufficient evidence. Insufficient data to validate backstory.
 54,In Search of the Castaways,Thalcave,0,1,CONTRADICTORY (conservative): Only 0% of claims have sufficient evidence. Insufficient data to validate backstory.
-126,The Count of Monte Cristo,Faria,0,1,CONTRADICTORY (conservative): Only 20% of claims have sufficient evidence. Insufficient data to validate backstory.
-128,The Count of Monte Cristo,Faria,0,1,CONTRADICTORY (conservative): Only 20% of claims have sufficient evidence. Insufficient data to validate backstory.
+126,The Count of Monte Cristo,Faria,0,1,CONTRADICTORY (conservative): Only 0% of claims have sufficient evidence. Insufficient data to validate backstory.
+128,The Count of Monte Cristo,Faria,0,1,CONTRADICTORY (conservative): Only 0% of claims have sufficient evidence. Insufficient data to validate backstory.
 67,In Search of the Castaways,Kai-Koumou,0,1,CONTRADICTORY (conservative): Only 0% of claims have sufficient evidence. Insufficient data to validate backstory.
-123,The Count of Monte Cristo,Faria,1,1,"CONSISTENT: 2 claims supported, 0 minor conflicts (resolvable)."
+123,The Count of Monte Cristo,Faria,0,1,CONTRADICTORY (conservative): Only 0% of claims have sufficient evidence. Insufficient data to validate backstory.

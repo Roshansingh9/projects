@@ -2,12 +2,12 @@ from typing import List, Dict
 from agents.prosecutor import ProsecutorAgent
 from agents.defense import DefenseAgent
 from agents.judge import JudgeAgent
-from llm.groq_client import GroqClient
+from llm.ollama_client import OllamaClient
 
 class DebateOrchestrator:
     """Orchestrates multi-agent deliberation on backstory consistency."""
     
-    def __init__(self, llm_client: GroqClient, retriever, config: dict):
+    def __init__(self, llm_client: OllamaClient, retriever, config: dict):
         self.llm = llm_client
         self.retriever = retriever
         self.config = config

@@ -5,7 +5,7 @@ import os
 
 from sklearn.model_selection import train_test_split
 
-from llm.groq_client import GroqClient
+from llm.ollama_client import OllamaClient  # CHANGED: Use Ollama instead of Groq
 from pathway_pipeline.ingest import NovelIngestor
 from pathway_pipeline.index import NovelIndexer
 from retrieval.retrieve import EvidenceRetriever
@@ -17,7 +17,7 @@ from scoring.scorer import BackstoryScorer
 # Utilities
 # --------------------------------------------------
 
-def load_config(config_path: str = "config.yaml") -> dict:
+def load_config(config_path: str = "config.yaml") -> dict:  # CHANGED: Use Ollama config
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
@@ -35,19 +35,20 @@ def main():
     print("=" * 80)
     print("KHARAGPUR DATA SCIENCE HACKATHON 2026")
     print("TRACK A — SYSTEMS REASONING WITH NLP & GENAI")
+    print("🦙 Running with Ollama (Local LLMs - No Limits!)")
     print("=" * 80)
 
     # -----------------------------
     # Load config
     # -----------------------------
     config = load_config()
-    print("✓ Configuration loaded")
+    print("✓ Configuration loaded (Ollama)")
 
     # -----------------------------
-    # Initialize LLM (FREE API)
+    # Initialize LLM (LOCAL)
     # -----------------------------
-    llm_client = GroqClient()
-    print("✓ LLM client initialized")
+    llm_client = OllamaClient()  # CHANGED: OllamaClient instead of GroqClient
+    print("✓ Ollama client initialized")
 
     # -----------------------------
     # Load train.csv and split 80/20
@@ -85,16 +86,6 @@ def main():
         indexer.save_index(index_cache)
         print("✓ Pathway index built and cached")
 
-    # DEBUG: Print available book IDs
-    print("\n🔍 DEBUG: Available book IDs in index:")
-    for book_id in indexer.index.keys():
-        print(f"   - '{book_id}'")
-    
-    # DEBUG: Print unique book names from CSV
-    print("\n🔍 DEBUG: Unique book names in validation CSV:")
-    for book_name in val_df['book_name'].unique():
-        print(f"   - '{book_name}'")
-
     # -----------------------------
     # Initialize components
     # -----------------------------
@@ -120,18 +111,10 @@ def main():
         backstory = row["content"]
         true_label = normalize_label(row["label"])
 
-        # DEBUG: First sample only
-        if len(results) == 0:
-            print(f"\n🔍 DEBUG: First sample")
-            print(f"   CSV book_name: '{book_name}'")
-            print(f"   Backstory preview: {backstory[:100]}...")
-
         try:
-            # Note: book_name from CSV should match book_id in index
-            # (book_id is derived from filename without .txt extension)
             deliberations = debate_orchestrator.deliberate_on_backstory(
                 backstory=backstory,
-                book_id=book_name  # book_name from CSV = book_id in index
+                book_id=book_name
             )
 
             pred_label, rationale = scorer.compute_score(deliberations)
@@ -147,9 +130,6 @@ def main():
 
         except Exception as e:
             print(f"\n❌ Error on sample {sample_id}: {e}")
-            import traceback
-            traceback.print_exc()
-            
             results.append({
                 "id": sample_id,
                 "book_name": book_name,
@@ -163,12 +143,12 @@ def main():
     # Save results
     # -----------------------------
     results_df = pd.DataFrame(results)
-    results_df.to_csv("results_val.csv", index=False)
+    results_df.to_csv("results_val_ollama.csv", index=False)  # CHANGED: Different filename
 
     print("\n" + "=" * 80)
     print("INFERENCE COMPLETE")
     print("=" * 80)
-    print("✓ Results saved to results_val.csv")
+    print("✓ Results saved to results_val_ollama.csv")
 
     # -----------------------------
     # Validation metrics (DEV ONLY)
@@ -181,7 +161,7 @@ def main():
     # -----------------------------
     llm_client.print_stats()
 
-    print("\n✓ Done.")
+    print("\n✓ Done. No rate limits hit! 🎉")
 
 
 if __name__ == "__main__":
